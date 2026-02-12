@@ -20,12 +20,8 @@ where n is the pair’s sample size and m is a shrinkage parameter. This prevent
 
 A composite synergy score combines:
 
-Shrunk performance (stability)
+Shrunk performance (stability), Log-lift (interaction strength), Sample-size weighting
 
-Log-lift (interaction strength)
-
-Sample-size weighting
-
-The objective is not simply to rank high win-rate pairs, but to isolate interaction effects — to determine whether in Double Up, 1 + 1 can systematically exceed 2.
+The objective is not simply to rank high win-rate pairs, but to isolate interaction effects to determine whether in Double Up, 1 + 1 can systematically exceed 2.
 
 This is an independent exploratory project focused on applied game analytics, statistical modeling, and balance system analysis.
