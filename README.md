@@ -35,7 +35,6 @@ tft_duo_project/
 │   ├── crawl_config.py
 │   ├── builds_set16_16.3_S.json
 │   ├── builds_set16_16.3_SA.json
-│   └── builds_set16_16_all.json
 │
 ├── data/
 │   ├── raw/                   # Raw Riot API match JSONs
@@ -150,8 +149,26 @@ python src/synergy_MVP.py
 
 Outputs go into: output/synergy/ 
 
-Notes
+## Notes
 
-This is an exploratory analysis project. Metrics are designed to be robust against small sample sizes using Empirical Bayes shrinkage. 
+This is an exploratory analysis project. Metrics are designed to be robust against small sample sizes using Empirical Bayes shrinkage.
 
-If you change patch or queue IDs, update config/crawl_config.py and re-run the pipeline.
+If you change patch or queue IDs, update `config/crawl_config.py` and re-run the pipeline.
+
+Build templates can be modified in the `config/` folder.  
+Currently:
+- `builds_set16_16.3_S.json` contains S-tier builds
+- `builds_set16_16.3_SA.json` contains S + A-tier builds
+
+If you change the patch version, make sure to:
+- Update `PATCH_PREFIX` in `crawl_config.py`
+- Update the build template filenames accordingly
+- Re-run the patch filter and the full pipeline
+
+Seed Riot IDs in:
+
+```bash
+python src/crawler.py "SomeName#EUNE" "AnotherName#EUW"
+```
+can be replaced with any valid Riot IDs (e.g. you and your teammate :) ).
+
