@@ -1,0 +1,13 @@
+# Raw data (never upload)
+data/raw/
+data/processed/
+data/state/
+output/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,9 @@
+API kulcs setting:
+setx RIOT_API_KEY RGAPI-...…………...
+
+
+teszt:
+echo %RIOT_API_KEY%
+
+
+

@@ -1,0 +1,194 @@
+[
+  {
+    "build_id": "B01",
+    "name": "Trials of Twighlight",
+    "units": [
+      "TFT16_Zaahen"
+  
+    ],
+    "notes": "Zaheen build"
+  },
+  {
+    "build_id": "B02",
+    "name": "Targon",
+    "units": [
+      "TFT16_AurelionSol"
+      
+    ],
+    "notes": "Targon build build"
+  },
+  {
+    "build_id": "B03",
+    "name": "Ixtal-brock",
+    "units": [
+      "TFT16_Brock"
+    ],
+    "notes": "Ixtal cash out build"
+  },
+  {
+    "build_id": "B04",
+    "name": "Dive Duo",
+    "units": [
+      "TFT16_Ambessa",
+      "TFT16_BelVeth",
+      "TFT16_Swain",
+      "TFT16_Aatrox",
+      "TFT16_RiftHerald"
+    ],
+    "notes": "Dive Duo - Ambesssa + Belveth build"
+  },
+  {
+    "build_id": "B05",
+    "name": "Fast 9 Ionia",
+    "units": [
+      "TFT16_Sett",
+      "TFT16_Wukong",
+      "TFT16_Yunara",
+      "TFT16_Lucian",
+      "TFT16_Kindred"
+    ],
+    "notes": "Fast 9 Ionia - Yunara carry build"
+  },
+  {
+    "build_id": "B06",
+    "name": "Unleash The Void",
+    "units": [
+      "TFT16_BaronNashor"
+    ],
+    "notes": "Void - Baron build"
+  },
+  {
+    "build_id": "B07",
+    "name": "Noxus Deathmark",
+    "units": [
+      "TFT16_Kindred",
+      "TFT16_Lucian",
+      "TFT16_Skarner",
+      "TFT16_Fiddlesticks",
+      "TFT16_Shyvana",
+      "TFT16_Taric",
+      "TFT16_Draven"
+    ],
+    "notes": "Noxus 9 Kindred - Lucian build"
+  },
+  {
+    "build_id": "B08",
+    "name": "Zaun Wolf",
+    "units": [
+      "TFT16_Warwick"
+    ],
+    "notes": "Zaun Warwick build"
+  },  
+  {
+    "build_id": "B09",
+    "name": "Tiny Terror",
+    "units": [
+      "TFT16_Veigar"
+    ],
+    "notes": "Yordle with Viegar build"
+  },  
+  {
+    "build_id": "B10",
+    "name": "Bard builds",
+    "units": [
+      "TFT16_Bard"
+    ],
+    "notes": "Bard build can be sion or neeko tank"
+  },  
+  {
+    "build_id": "B11",
+    "name": "Crescendo Reroll",
+    "units": [
+      "TFT16_Sona",
+      "TFT16_JarvanIV",
+      "TFT16_Galio"
+    ],
+    "notes": "Sona and Jarvan reroll build + Demacia because its exactly the same except 3 starring 1 costs"
+  },  
+  {
+    "build_id": "B12",
+    "name": "Kaisa Flex",
+    "units": [
+      "TFT16_Kaisa",
+      "TFT16_Ziggs",
+      "TFT16_RiftHerald",
+      "TFT16_Volibear",
+      "TFT16_Swain",
+      "TFT16_Wukong"
+    ],
+    "notes": "kaisa Void with Ziggs build"
+  },
+  {
+    "build_id": "B13",
+    "name": "Shadow spiers",
+    "units": [
+      "TFT16_Thresh",
+      "TFT16_Kalista",
+      "TFT16_Ornn"
+    ],
+    "notes": "Shadow Isles build can be with viego aug"
+  },
+    {
+    "build_id": "B14",
+    "name": "Fast 9 fleet",
+    "units": [
+      "TFT16_TahmKench",
+      "TFT16_MissFortune",
+      "TFT16_Nautilus"
+    ],
+    "notes": "Bilgewater build"
+  },
+   {
+    "build_id": "B15",
+    "name": "Blood Brothers",
+    "units": [
+      "TFT16_Yone",
+      "TFT16_Yasuo"
+    ],
+    "notes": "Yone and Yasuo build"
+  },
+   {
+    "build_id": "B16",
+    "name": "Ekko roll",
+    "units": [
+      "TFT16_Ekko",
+      "TFT16_Neeko",
+      "TFT16_Vi"
+    ],
+    "notes": "Ekko roll"
+  },
+   {
+    "build_id": "B17",
+    "name": "Shurima",
+    "units": [
+      "TFT16_Azir",
+      "TFT16_Renekton"
+    ],
+    "notes": "Bilgewater build"
+  },
+  {
+    "build_id": "B18",
+    "name": "Bruiser Bear",
+    "units": [
+      "TFT16_Ryze"
+    ],
+    "notes": "Bilgewater build"
+  },
+  {
+    "build_id": "B19",
+    "name": "Dema shot",
+    "units": [
+      "TFT16_Vayne"
+    ],
+    "notes": "Bilgewater build"
+  },
+  {
+    "build_id": "B20",
+    "name": "xyz",
+    "units": [
+      "TFT16_Azir",
+      "TFT16_Renekton"
+    ],
+    "notes": "Bilgewater build"
+  }                              
+]
