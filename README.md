@@ -28,40 +28,47 @@ This is an independent exploratory project focused on applied game analytics, st
 
 ## Project Structure
 
+```text
+
 tft_duo_project/
-config/
-crawl_config.py
-builds_set16_16.3_S.json
-builds_set16_16.3_SA.json
-builds_set16_16_all.json
-
-data/
-raw/
-matches/
-16.3/ # raw match JSON files filtered by patch (optional)
-archive/
-processed/
-pair_summaries_S.jsonl
-pair_summaries_SA.jsonl
-archive/
-state/
-crawler_state.json
-reports/
-unit_list/
-16.txt
-
-output/
-synergy/ # CSVs + plots produced by synergy_MVP
-
-src/
-crawler.py
-filter_patch_raw.py
-make_pair_summaries.py
-synergy_MVP.py
-test_single_match.py
-
-scripts/
-(optional helper .bat files / archives)
+├── config/
+│   ├── crawl_config.py
+│   ├── builds_set16_16.3_S.json
+│   ├── builds_set16_16.3_SA.json
+│   └── builds_set16_16_all.json
+│
+├── data/
+│   ├── raw/
+│   │   └── matches/
+│   │       ├── 16.3/          # raw match JSON files filtered by patch
+│   │       └── archive/
+│   │
+│   ├── processed/
+│   │   ├── pair_summaries_S.jsonl
+│   │   ├── pair_summaries_SA.jsonl
+│   │   └── archive/
+│   │
+│   ├── state/
+│   │   └── crawler_state.json
+│   │
+│   ├── reports/
+│   │
+│   └── unit_list/
+│       └── 16.txt
+│
+├── output/
+│   └── synergy/               # CSVs + plots produced by synergy_MVP
+│
+├── src/
+│   ├── crawler.py
+│   ├── filter_patch_raw.py
+│   ├── make_pair_summaries.py
+│   ├── synergy_MVP.py
+│   └── test_single_match.py
+│
+└── scripts/
+    └── (optional helper .bat files / archives)
+```
 
 
 ## Requirements
@@ -89,7 +96,7 @@ CMD (for the current terminal session only):
 
 set RIOT_API_KEY=RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
-```bash
+```
 
 ## Usage (End-to-End Pipeline)
 
@@ -98,4 +105,32 @@ set RIOT_API_KEY=RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 Run the crawler with seed Riot IDs:
 
+```bash
 python src/crawler.py "SomeName#EUW" "AnotherName#EUNE"
+```
+
+Patch + queue filtering is configured in config/crawl_config.py. 
+The crawler reads the API key from RIOT_API_KEY. 
+
+
+2) Build identification + pair summaries (raw → processed jsonl)
+
+This step maps each player board to a predefined build template, then writes one row per Double Up team into a JSONL file:
+
+```bash
+python src/make_pair_summaries.py
+```
+
+The output is typically written to:
+
+data/processed/pair_summaries_SA.jsonl 
+
+
+Build templates live in config/builds_set16_16.3_*.json. 
+
+make_pair_summaries
+
+3) Compute synergy metrics + plots (processed → output/synergy)
+
+This step aggregates pair-level performance, applies lift + Empirical Bayes shrinkage, and generates ranked CSV tables + charts:
+
