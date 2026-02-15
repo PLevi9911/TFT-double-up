@@ -38,12 +38,12 @@ tft_duo_project/
 │   └── builds_set16_16_all.json
 │
 ├── data/
-│   ├── raw/
+│   ├── raw/                   # Raw Riot API match JSONs
 │   │   └── matches/
 │   │       ├── 16.3/          # raw match JSON files filtered by patch
 │   │       └── archive/
 │   │
-│   ├── processed/
+│   ├── processed/             # Build-pair level aggregated dataset
 │   │   ├── pair_summaries_S.jsonl
 │   │   ├── pair_summaries_SA.jsonl
 │   │   └── archive/
@@ -57,9 +57,11 @@ tft_duo_project/
 │       └── 16.txt
 │
 ├── output/
-│   └── synergy/               # CSVs + plots produced by synergy_MVP
+│   └── synergy/
+│       ├── CSV exports      # CSVs + plots produced by synergy_MVP
+│       └── plots    
 │
-├── src/
+├── src/                     #Core pipeline scripts
 │   ├── crawler.py
 │   ├── filter_patch_raw.py
 │   ├── make_pair_summaries.py
@@ -112,8 +114,16 @@ python src/crawler.py "SomeName#EUW" "AnotherName#EUNE"
 Patch + queue filtering is configured in config/crawl_config.py. 
 The crawler reads the API key from RIOT_API_KEY. 
 
+2)
+Filter raw matches by patch (move into data/raw/matches/<PATCH_PREFIX>/)
 
-2) Build identification + pair summaries (raw → processed jsonl)
+After crawling, raw match JSONs may include multiple patches. This step scans the downloaded files, reads the patch from info.game_version, and moves only the selected patch into its dedicated folder (e.g. data/raw/matches/16.3/):
+
+```bash
+python src/filter_patch_raw.py
+
+```
+3) Build identification + pair summaries (raw → processed jsonl)
 
 This step maps each player board to a predefined build template, then writes one row per Double Up team into a JSONL file:
 
@@ -130,7 +140,7 @@ Build templates live in config/builds_set16_16.3_SA*.json.
 
 make_pair_summaries
 
-3) Compute synergy metrics + plots (processed → output/synergy)
+4) Compute synergy metrics + plots (processed → output/synergy)
 
 This step aggregates pair-level performance, applies lift + Empirical Bayes shrinkage, and generates ranked CSV tables + charts:
 
