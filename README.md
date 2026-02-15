@@ -126,7 +126,7 @@ The output is typically written to:
 data/processed/pair_summaries_SA.jsonl 
 
 
-Build templates live in config/builds_set16_16.3_*.json. 
+Build templates live in config/builds_set16_16.3_SA*.json. 
 
 make_pair_summaries
 
