@@ -113,8 +113,7 @@ python src/crawler.py "SomeName#EUW" "AnotherName#EUNE"
 Patch + queue filtering is configured in config/crawl_config.py. 
 The crawler reads the API key from RIOT_API_KEY. 
 
-2)
-Filter raw matches by patch (move into data/raw/matches/<PATCH_PREFIX>/)
+2) Filter raw matches by patch (move into data/raw/matches/<PATCH_PREFIX>/)
 
 After crawling, raw match JSONs may include multiple patches. This step scans the downloaded files, reads the patch from info.game_version, and moves only the selected patch into its dedicated folder (e.g. data/raw/matches/16.3/):
 
@@ -133,7 +132,6 @@ python src/make_pair_summaries.py
 The output is typically written to:
 
 data/processed/pair_summaries_SA.jsonl 
-
 
 Build templates live in config/builds_set16_16.3_SA*.json. 
 
