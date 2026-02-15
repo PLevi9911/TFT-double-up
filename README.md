@@ -89,7 +89,7 @@ CMD (for the current terminal session only):
 
 set RIOT_API_KEY=RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
-
+```bash
 
 ## Usage (End-to-End Pipeline)
 
