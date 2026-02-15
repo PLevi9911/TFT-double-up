@@ -134,3 +134,14 @@ make_pair_summaries
 
 This step aggregates pair-level performance, applies lift + Empirical Bayes shrinkage, and generates ranked CSV tables + charts:
 
+```bash
+python src/synergy_MVP.py
+```
+
+Outputs go into: output/synergy/ 
+
+Notes
+
+This is an exploratory analysis project. Metrics are designed to be robust against small sample sizes using Empirical Bayes shrinkage. 
+
+If you change patch or queue IDs, update config/crawl_config.py and re-run the pipeline.
