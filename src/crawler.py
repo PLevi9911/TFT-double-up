@@ -24,10 +24,10 @@ import config.crawl_config as cfg
 API_KEY = os.getenv("RIOT_API_KEY")
 if not API_KEY:
     raise SystemExit(
-        "Hiányzik a RIOT_API_KEY env var.\n"
-        "PowerShell (tartós): setx RIOT_API_KEY \"RGAPI-...\"\n"
-        "CMD (csak erre az ablakra): set RIOT_API_KEY=RGAPI-...\n"
-        "Utána nyiss új terminált és próbáld újra."
+        "Missing RIOT_API_KEY env var.\n"
+        "PowerShell (perma): setx RIOT_API_KEY \"RGAPI-...\"\n"
+        "CMD (Only this window): set RIOT_API_KEY=RGAPI-...\n"
+        "Open a new terminal and try again."
     )
 
 HEADERS = {"X-Riot-Token": API_KEY}
@@ -70,16 +70,16 @@ def base(region: str) -> str:
 
 def riot_get_json(url: str, params: Optional[Dict[str, Any]] = None, max_retries: int = 9) -> Any:
     """
-    Robusztusabb hívás:
-    - 429: Retry-After tiszteletben tartása
-    - 5xx: exponenciális backoff + jitter + 'circuit breaker' jelleg
+    To be Robust:
+    - 429: Retry-After case
+    - 5xx: exponencial backoff + jitter + 'circuit breaker'
     """
     last_status = None
     for attempt in range(max_retries):
         try:
             resp = requests.get(url, headers=HEADERS, params=params, timeout=35)
         except requests.RequestException as e:
-            # Hálózati hiba -> backoff
+            # Network error -> backoff
             wait = min(60.0, 2.0 * (2 ** attempt)) + random.uniform(0, 1.0)
             print(f"[NET] {type(e).__name__} – retry in {wait:.1f}s")
             time.sleep(wait)
@@ -92,7 +92,7 @@ def riot_get_json(url: str, params: Optional[Dict[str, Any]] = None, max_retries
 
         if resp.status_code == 429:
             retry_after = resp.headers.get("Retry-After")
-            # Riot néha nem ad Retry-After-t -> legyen konzervatív
+            # Riot sometimes doesnt give Retry-After-t -> be conservative
             base_wait = float(retry_after) if retry_after else (12 + attempt * 6)
             wait = min(120.0, base_wait) + random.uniform(0, 1.5)
             print(f"[RATE LIMIT] 429 – waiting {wait:.1f}s")
@@ -100,7 +100,7 @@ def riot_get_json(url: str, params: Optional[Dict[str, Any]] = None, max_retries
             continue
 
         if resp.status_code in (500, 502, 503, 504):
-            # Exponenciális backoff + jitter, plafonnal
+            # Exponencial backoff + jitter, plafonnal
             wait = min(90.0, 2.0 * (2 ** attempt)) + random.uniform(0, 2.0)
             print(f"[SERVER] {resp.status_code} – retry in {wait:.1f}s")
             time.sleep(wait)
@@ -108,7 +108,7 @@ def riot_get_json(url: str, params: Optional[Dict[str, Any]] = None, max_retries
 
         if resp.status_code in (401, 403):
             raise RuntimeError(
-                f"Auth error {resp.status_code}. Valószínű lejárt/rossz a RIOT_API_KEY.\n"
+                f"Auth error {resp.status_code}. Probably expired/bad a RIOT_API_KEY.\n"
                 f"Response: {resp.text[:200]}"
             )
 
@@ -180,11 +180,11 @@ import re
 
 def is_target_patch(m):
     gv = get_game_version(m)
-    # Riot match JSON-ban így van: <Releases/16.1>
+    # Riot match JSON like: <Releases/16.1>
     m_ = re.search(r"<Releases/(\d+\.\d+)>", gv)
     if m_:
         return m_.group(1) == cfg.PATCH_PREFIX
-    # fallback, ha a formátum változna
+    # fallback, if format changes
     return cfg.PATCH_PREFIX in gv
 
 
@@ -259,13 +259,13 @@ def crawl(seed_riot_ids: List[str]) -> None:
                 time.sleep(cfg.SLEEP_SECONDS)
                 continue
 
-            # Debug: queueId eloszlás (segít belőni a Double Up queueId-t)
+            # Debug: queueId distribution (helps to see Double Up queueId-t)
             qid = get_queue_id(m)
             if qid is not None:
                 k = str(qid)
                 debug_queue_ids_seen[k] = debug_queue_ids_seen.get(k, 0) + 1
 
-            # Szűrés: patch + Double Up
+            # Filter: patch + Double Up
             if not is_target_patch(m):
                 continue
             if not is_double_up(m):
@@ -278,7 +278,7 @@ def crawl(seed_riot_ids: List[str]) -> None:
                 gv = get_game_version(m)
                 print(f"[OK] kept {kept_count}/{cfg.TARGET_MATCHES}  qid={qid}  gv={gv}  match={mid}")
 
-            # Snowball: résztvevők queue-ba
+            # Snowball
             for pu in extract_puuids(m):
                 if len(q) >= cfg.MAX_QUEUE_SIZE:
                     break
@@ -288,7 +288,7 @@ def crawl(seed_riot_ids: List[str]) -> None:
 
             time.sleep(cfg.SLEEP_SECONDS)
 
-            # időnként mentsünk state-et
+            # Save state after some time
             if kept_count - last_saved_at_kept >= cfg.SAVE_EVERY_N_KEPT:
                 state_out = {
                     "seen_match_ids": list(seen_match_ids),
@@ -326,5 +326,5 @@ if __name__ == "__main__":
     import sys
     seeds = sys.argv[1:]
     if not seeds:
-        raise SystemExit('Add meg a seed Riot ID-kat: python src/crawler.py "SomeName#EUNE" "AnotherName#EUW"')
+        raise SystemExit('Set seed Riot ID: python src/crawler.py "SomeName#EUNE" "AnotherName#EUW"')
     crawl(seeds)

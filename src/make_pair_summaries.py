@@ -3,9 +3,9 @@ import json
 import math
 from collections import Counter
 
-# -------------------------------------------------
-# ABSZOLÚT PATHOK (NÁLAD)
-# -------------------------------------------------
+# =================================================
+# FILE PATHS
+# =================================================
 RAW_DIR = r"C:\Users\Levi\Documents\tft_duo_project\data\raw\matches\16.3"
 BUILDS_PATH = r"C:\Users\Levi\Documents\tft_duo_project\config\builds_set16_16.3_S.json"
 
@@ -13,9 +13,9 @@ PROCESSED_DIR = r"C:\Users\Levi\Documents\tft_duo_project\data\processed"
 OUT_PATH = os.path.join(PROCESSED_DIR, "pair_summaries_S.jsonl")
 
 
-# -------------------------------------------------
-# SEGÉD
-# -------------------------------------------------
+# =================================================
+# HELPER
+# =================================================
 
 
 def ensure_dirs():
@@ -48,11 +48,11 @@ def placement_to_team_rank(placement: int) -> int:
         return 3
     return 4
 
-# -------------------------------------------------
-# BUILD AZONOSÍTÁS PARAMÉTEREK (kulcs unitok)
-# -------------------------------------------------
-KEY_UNITS_N = 3        # a build listájának első 4 unitja a "kulcs"
-KEY_UNITS_MIN_HITS = 3 # legalább ennyi találat kell a kulcs 4-ből
+# =================================================
+# BUILD IDENTIFICATING PARAMETERS
+# =================================================
+KEY_UNITS_N = 3        #  First 3 unit is the "key"
+KEY_UNITS_MIN_HITS = 3 # Minimum matches from the "key" units
 
 
 
@@ -210,7 +210,7 @@ def write_jsonl_line(f, obj: dict):
 def main():
     ensure_dirs()
 
-    # build lista + debug
+    # build list + debug
     builds = load_json(BUILDS_PATH)
     print("[DEBUG] BUILDS_PATH =", BUILDS_PATH)
     print("[DEBUG] builds count =", len(builds))
@@ -247,7 +247,7 @@ def main():
             participants = info.get("participants", [])
             total_players_seen += len(participants)
 
-            # kell: legyen placement mindenkinek (1..8)
+            # Must: everybody must have a placement (1..8)
             placement_map = {}
             ok = True
             for p in participants:
@@ -262,7 +262,7 @@ def main():
                     break
                 placement_map[pl] = p
 
-            # elvárt: 1..8 mind meglegyen (ha nem, kihagyjuk, nehogy rossz párok legyenek)
+            # Required: 1..8 all places (if not, skip)
             for need in range(1, 9):
                 if need not in placement_map:
                     ok = False
@@ -277,7 +277,7 @@ def main():
             game_dt = info.get("game_datetime")
             queue_id = info.get("queue_id") or info.get("queueId")
 
-            # 4 páros: (1,2), (3,4), (5,6), (7,8)
+            # 4 duo: (1,2), (3,4), (5,6), (7,8)
             pair_defs = [
                 (1, 2, 1),
                 (3, 4, 2),
@@ -336,32 +336,32 @@ def main():
                     "match_id": match_id,
                     "game_datetime": game_dt,
                     "queue_id": queue_id,
-                    "team_rank": team_rank,        # 1..4 (ez a “végső helyezés”)
-                    "team_bucket": team_rank,      # nálad bucket = team_rank
-                    "pair_key": f"{a_pl}-{b_pl}",  # debug: melyik placement pár
+                    "team_rank": team_rank,        # 1..4  (“final placement”)
+                    "team_bucket": team_rank,      # our bucket = team_rank
+                    "pair_key": f"{a_pl}-{b_pl}",  # debug: placement pairs
                     "members": members
                 }
 
                 write_jsonl_line(out_f, out_obj)
                 total_pairs_written += 1
 
-    print("\n[DONE] Kész.")
-    print(f"  Set16 matches feldolgozva: {total_matches}")
-    print(f"  SKIP (nem Set16): {skipped_wrong_set}")
-    print(f"  SKIP (hibás placement/hiányzó 1..8): {skipped_bad_match}")
-    print(f"  Players seen (összes participant listahossz összeadva): {total_players_seen}")
-    print(f"  Pair rows written (match*4 várható): {total_pairs_written}")
+    print("\n[DONE] Done.")
+    print(f"  Set16 matches processed: {total_matches}")
+    print(f"  SKIP (not Set16): {skipped_wrong_set}")
+    print(f"  SKIP (faulty placement/missing 1..8): {skipped_bad_match}")
+    print(f"  Players seen (all participant list lenght added together): {total_players_seen}")
+    print(f"  Pair rows written (match*4 expected): {total_pairs_written}")
     print(f"  Output: {OUT_PATH}")
 
-    print("\n[BUILD STATS] (player szint, mert 2 játékos/pár)")
-    print(f"  Known build (nem UNKNOWN): {known_count}")
+    print("\n[BUILD STATS] (player level, 2 player/pair)")
+    print(f"  Known build (not UNKNOWN): {known_count}")
     print(f"  UNKNOWN: {unknown_count}")
     total_classified = known_count + unknown_count
     if total_classified > 0:
-        print(f"  UNKNOWN arány: {unknown_count / total_classified:.2%}")
+        print(f"  UNKNOWN ratio: {unknown_count / total_classified:.2%}")
 
-    print("\n[TOP 10 BUILD_ID]")
-    for bid, cnt in build_counter.most_common(23):
+    print("\n[TOP 15 BUILD_ID]")
+    for bid, cnt in build_counter.most_common(15):
         print(f"  {bid}: {cnt}")
 
 

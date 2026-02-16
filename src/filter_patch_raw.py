@@ -4,7 +4,7 @@ import shutil
 import re
 
 # =========================================================
-# 0) BEÁLLÍTÁSOK
+# 0) Setup
 # =========================================================
 
 RAW_DIR = r"C:\Users\Levi\Documents\tft_duo_project\data\raw\matches"
@@ -15,7 +15,7 @@ OUT_DIR = rf"C:\Users\Levi\Documents\tft_duo_project\data\raw\matches\16.3"
 
 
 # =========================================================
-# 1) SEGÉDEK
+# 1) Helpers
 # =========================================================
 
 def ensure_dir(path: str):
@@ -24,7 +24,7 @@ def ensure_dir(path: str):
 
 def extract_patch(game_version: str) -> str | None:
     """
-    Riot formátum:
+    Riot format:
     <Releases/16.3>
     """
     if not game_version:
@@ -60,7 +60,7 @@ def main():
             with open(full_path, "r", encoding="utf-8") as f:
                 match = json.load(f)
         except Exception as e:
-            print(f"[SKIP] Nem tudtam olvasni: {fn} -> {e}")
+            print(f"[SKIP] I could not read: {fn} -> {e}")
             skipped += 1
             continue
 
