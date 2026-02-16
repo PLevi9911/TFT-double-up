@@ -2,27 +2,27 @@
 # TFT Double Up crawler config (Windows absolute paths)
 
 REGIONAL_ROUTING = "europe"     # EUNE/EUW -> europe routing :contentReference[oaicite:1]{index=1}
-PATCH_PREFIX = "16.3"           # jelenlegi patch prefix
+PATCH_PREFIX = "16.3"           #  patch prefix
 
-# Double Up queueId-k (ha a kept_count 0 marad, később debug alapján átírjuk)
+# Double Up queueId-k (if kept_count is 0, later you can debug)
 DOUBLE_UP_QUEUE_IDS = {1150, 1160}
 
-# Cél: ennyi patch+DoubleUp match legyen meg
+# Goal: How many games you want at least
 TARGET_MATCHES = 10000
 
-# Ennyi matchId-t kérünk le playerenként (seed bővítéshez)
+#  Match ID per player (to extend seeds)
 MATCHLIST_COUNT_PER_PLAYER = 50
 
-# Rate-limit barát delay (dev key-hez)
+# Rate-limit friendly delay (dev key)
 SLEEP_SECONDS = 0.20
 
-# ABSZOLÚT útvonalak (a te gépedhez)
+# File paths
 PROJECT_ROOT = r"C:\Users\Levi\Documents\tft_duo_project"
 STATE_PATH = PROJECT_ROOT + r"\data\state\crawler_state.json"
 RAW_DIR = PROJECT_ROOT + r"\data\raw\matches"
 
-# Biztonsági korlát: ne nőjön végtelenre a queue
+# Safety Limit
 MAX_QUEUE_SIZE = 30000
 
-# State mentés gyakorisága (kept meccsek alapján)
+# State saving frequency (kept games)
 SAVE_EVERY_N_KEPT = 75

@@ -326,5 +326,5 @@ if __name__ == "__main__":
     import sys
     seeds = sys.argv[1:]
     if not seeds:
-        raise SystemExit('Add meg a seed Riot ID-kat: python src/crawler.py "Lewking#EUNE" "zBeno#EUNE"')
+        raise SystemExit('Add meg a seed Riot ID-kat: python src/crawler.py "SomeName#EUNE" "AnotherName#EUW"')
     crawl(seeds)
