@@ -7,10 +7,10 @@ from collections import Counter
 # FILE PATHS
 # =================================================
 RAW_DIR = r"C:\Users\Levi\Documents\tft_duo_project\data\raw\matches\16.3"
-BUILDS_PATH = r"C:\Users\Levi\Documents\tft_duo_project\config\builds_set16_16.3_S.json"
+BUILDS_PATH = r"C:\Users\Levi\Documents\tft_duo_project\config\builds_set16_16.3_SA.json"
 
 PROCESSED_DIR = r"C:\Users\Levi\Documents\tft_duo_project\data\processed"
-OUT_PATH = os.path.join(PROCESSED_DIR, "pair_summaries_S.jsonl")
+OUT_PATH = os.path.join(PROCESSED_DIR, "pair_summaries_SA.jsonl")
 
 
 # =================================================

@@ -9,27 +9,27 @@ import matplotlib.pyplot as plt
 
 
 # =========================================================
-# 0) BEÁLLÍTÁSOK – EZT NÉZD MEG ELŐSZÖR
+# 0) SETTINGS
 # =========================================================
 
 PAIR_FILE = r"C:\Users\Levi\Documents\tft_duo_project\data\processed\pair_summaries_S.jsonl"
 OUT_DIR = r"C:\Users\Levi\Documents\tft_duo_project\output\synergy"
 
-# Double Up queue_id nálad: 1160 (a file-ban látszik)
+# Double Up queue_id: 1160
 DOUBLE_UP_QUEUE_ID = 1160
 
-# Minimum meccs, hogy “komolyan vegyük” a rangsorban
+# Minimum games
 MIN_GAMES = 30
 
-# Empirical Bayes shrink “m” paraméter (minél nagyobb, annál jobban húz a globál átlag felé)
+# Empirical Bayes shrink “m” parameter
 EB_M = 200
 
-# Top N ábrákhoz
+# Top N for plot
 TOPN = 10
 
 
 # =========================================================
-# 1) SEGÉDEK
+# 1) HELPERS
 # =========================================================
 
 def ensure_dir(path: str) -> None:
@@ -60,9 +60,9 @@ def canonical_pair(a: str, b: str) -> Tuple[str, str]:
 
 def team_rank_to_points(team_rank: int) -> int:
     """
-    Double Up-ban 4 csapat van.
-    team_rank: 1..4 (1 a legjobb)
-    Pont: 4..1 (minél több, annál jobb)
+    Double Up-ban has 4 teams.
+    team_rank: 1..4 (1 is best)
+    Pont: 4..1 (the more, the better)
     """
     r = int(team_rank)
     return 5 - r  # 1->4, 2->3, 3->2, 4->1
@@ -70,7 +70,7 @@ def team_rank_to_points(team_rank: int) -> int:
 def empirical_bayes(mean_i: float, n_i: int, global_mean: float, m: float) -> float:
     """
     EB shrink: (n*mean + m*global_mean) / (n+m)
-    kis n -> húz a globál felé, nagy n -> közel a saját mean-hez
+    small n -> pulls to global, big n -> close to own mean
     """
     if n_i <= 0:
         return global_mean
@@ -81,13 +81,13 @@ def clip01(x: float) -> float:
 
 
 # =========================================================
-# 2) BETÖLTÉS + FLATTEN (PAIR SZINTŰ SOROK)
+# 2) LOADING + FLATTEN (PAIR LEVEL)
 # =========================================================
 
 def build_pair_dataframe(rows: List[Dict[str, Any]]) -> pd.DataFrame:
     out = []
     for r in rows:
-        # queue filter (biztonság)
+        # queue filter
         if r.get("queue_id") != DOUBLE_UP_QUEUE_ID:
             continue
 
@@ -119,17 +119,17 @@ def build_pair_dataframe(rows: List[Dict[str, Any]]) -> pd.DataFrame:
 
 
 # =========================================================
-# 3) MARGINALOK (BUILD-SZINTŰ ALAPVALÓSZÍNŰSÉGEK)
+# 3) MARGINALS (BUILD-LEVEL BASIC PROBABILITY)
 # =========================================================
 
 def compute_build_marginals(df_pairs: pd.DataFrame) -> pd.DataFrame:
     """
-    Kiszámolja build szinten:
-      - mennyi meccsben szerepelt (bármilyen partnerrel)
-      - top1/top2 arány (team_rank alapján)
-      - átlag team_points / team_rank
+    Calculating on build level:
+      - how many matches included (any partner)
+      - top1/top2 ratio (team_rank)
+      - average team_points / team_rank
     """
-    # szétszedjük a párokat “long” formára: egy sor = (match, build)
+    # separate pairs “long”: 1 row = (match, build)
     long_rows = []
     for _, row in df_pairs.iterrows():
         for b in (row["build_a"], row["build_b"]):
@@ -152,12 +152,12 @@ def compute_build_marginals(df_pairs: pd.DataFrame) -> pd.DataFrame:
 
 
 # =========================================================
-# 4) PÁR SZINERGIA METRIKÁK + “KOMPLEXEBB MATEK”
+# 4) PAIR SYNERGY METRICS
 # =========================================================
 
 def compute_pair_synergies(df_pairs: pd.DataFrame, df_marg: pd.DataFrame) -> pd.DataFrame:
     """
-    Pair szintű statok:
+    Pair level stats:
       - games
       - avg_team_rank, avg_team_points
       - top1/top2/top3 arány
@@ -165,7 +165,7 @@ def compute_pair_synergies(df_pairs: pd.DataFrame, df_marg: pd.DataFrame) -> pd.
       - Lift_top2: observed_top2 / (pA_top2 * pB_top2)
       - Lift_top1: observed_top1 / (pA_top1 * pB_top1)
       - log_lift_top2, log_lift_top1
-      - synergy_score (kombinált)
+      - synergy_score (combined)
     """
     # Marginal lookup
     marg = df_marg.set_index("build").to_dict(orient="index")
@@ -173,7 +173,7 @@ def compute_pair_synergies(df_pairs: pd.DataFrame, df_marg: pd.DataFrame) -> pd.
     def get_marg(build: str) -> Dict[str, float]:
         return marg.get(build, {"top1": 0.0, "top2": 0.0, "top3": 0.0, "avg_team_points": df_pairs["team_points"].mean(), "games": 0})
 
-    # Pair aggregáció
+    # Pair aggregations
     g = df_pairs.groupby(["build_a", "build_b"], as_index=False).agg(
         games=("team_rank", "count"),
         avg_team_rank=("team_rank", "mean"),
@@ -185,7 +185,7 @@ def compute_pair_synergies(df_pairs: pd.DataFrame, df_marg: pd.DataFrame) -> pd.
 
     global_mean_points = float(df_pairs["team_points"].mean())
 
-    # EB + lift számolás
+    # EB + lift calculation
     eb_points = []
     lift_top2 = []
     lift_top1 = []
@@ -198,38 +198,38 @@ def compute_pair_synergies(df_pairs: pd.DataFrame, df_marg: pd.DataFrame) -> pd.
         b = row["build_b"]
         n = int(row["games"])
 
-        # Empirical Bayes shrinkelt pont
+        # Empirical Bayes shrinkelt point
         eb = empirical_bayes(float(row["avg_team_points"]), n, global_mean_points, EB_M)
         eb_points.append(eb)
 
         ma = get_marg(a)
         mb = get_marg(b)
 
-        # expected baseline (függetlenségi felt.)
+        # expected baseline (independence condition)
         exp_top2 = clip01(float(ma["top2"])) * clip01(float(mb["top2"]))
         exp_top1 = clip01(float(ma["top1"])) * clip01(float(mb["top1"]))
 
         obs_top2 = clip01(float(row["top2"]))
         obs_top1 = clip01(float(row["top1"]))
 
-        # Lift: ha >1 akkor “jobb együtt, mint várnád”
+        # Lift: if >1 then “better together, then expected”
         lt2 = (obs_top2 / exp_top2) if exp_top2 > 1e-9 else np.nan
         lt1 = (obs_top1 / exp_top1) if exp_top1 > 1e-9 else np.nan
 
         lift_top2.append(lt2)
         lift_top1.append(lt1)
 
-        # Log-lift stabilabb rangsoroláshoz
+        # Log-lift for stable ranking
         llt2 = math.log(lt2) if (lt2 is not np.nan and lt2 is not None and not (isinstance(lt2, float) and np.isnan(lt2)) and lt2 > 1e-12) else np.nan
         llt1 = math.log(lt1) if (lt1 is not np.nan and lt1 is not None and not (isinstance(lt1, float) and np.isnan(lt1)) and lt1 > 1e-12) else np.nan
 
         log_lift_top2.append(llt2)
         log_lift_top1.append(llt1)
 
-        # Kombinált synergy score:
-        # - EB pont (stabil teljesítmény)
-        # - plusz log-lift (ha “együtt extra”)
-        # - és egy “mintaszám faktor” (ne legyen 3 game-es csoda)
+        # Combined synergy score:
+        # - EB point (stabil performance)
+        # - + log-lift (if “together extra”)
+        # - and a “sample number factor” (don't have a 3-game miracle)
         sample_factor = math.sqrt(n) / math.sqrt(n + EB_M)
         score = (eb * 1.0) + (0.30 * (llt2 if not np.isnan(llt2) else 0.0)) + (0.15 * (llt1 if not np.isnan(llt1) else 0.0))
         score *= sample_factor
@@ -246,12 +246,12 @@ def compute_pair_synergies(df_pairs: pd.DataFrame, df_marg: pd.DataFrame) -> pd.
 
 
 # =========================================================
-# 5) ÁBRÁK
+# 5) FIGURES
 # =========================================================
 
 def plot_top_bar(df: pd.DataFrame, col: str, title: str, out_path: str, topn: int = TOPN) -> None:
     d = df.sort_values(col, ascending=False).head(topn).copy()
-    # rövid label: "A + B"
+    # short label: "A + B"
     d["pair"] = d["build_a"] + "  +  " + d["build_b"]
 
     plt.figure(figsize=(12, max(6, topn * 0.35)))
@@ -266,7 +266,7 @@ def plot_scatter_count_vs_perf(df: pd.DataFrame, out_path: str) -> None:
     d = df.copy()
     plt.figure(figsize=(10, 6))
     plt.scatter(d["games"], d["eb_points"], alpha=0.6)
-    plt.title("Pair: meccsszám vs EB-shrinkelt teljesítmény (team_points)")
+    plt.title("Pair: number of matches vs EB-shrinked performance (team_points)")
     plt.xlabel("games")
     plt.ylabel("eb_points (1..4)")
     plt.tight_layout()
@@ -275,27 +275,27 @@ def plot_scatter_count_vs_perf(df: pd.DataFrame, out_path: str) -> None:
 
 def plot_heatmap_top_builds(df_pairs: pd.DataFrame, out_path: str, top_builds: int = 18) -> None:
     """
-    Egyszerű heatmap-szerű mátrix:
-    - kiválasztjuk a top N leggyakoribb buildet marginal alapján
-    - mátrix cella = átlag team_points a (i,j) páron
+    Basic heatmap matrix:
+    - Select the top N most common build based on marginal
+    - mátrix cells = average team_points on (i,j) pairs
     """
-    # build gyakoriság
+    # build frequency
     counts = pd.concat([df_pairs["build_a"], df_pairs["build_b"]]).value_counts()
     top = list(counts.head(top_builds).index)
 
-    # filter top build-ekre
+    # filter on top builds
     df = df_pairs[(df_pairs["build_a"].isin(top)) & (df_pairs["build_b"].isin(top))].copy()
 
     # pivot: mean points
     piv = df.pivot_table(index="build_a", columns="build_b", values="team_points", aggfunc="mean")
 
-    # töltsük fel a hiányzókat
+    # fill the missings
     piv = piv.reindex(index=top, columns=top)
     mat = piv.values
 
     plt.figure(figsize=(10, 8))
     plt.imshow(mat, aspect="auto")
-    plt.title(f"Top {top_builds} build párok – átlag team_points (4=jobb)")
+    plt.title(f"Top {top_builds} build pairs – agerage team_points (4=better)")
     plt.xticks(range(len(top)), top, rotation=90)
     plt.yticks(range(len(top)), top)
     plt.colorbar(label="avg team_points")
@@ -319,7 +319,7 @@ def main():
     print(f"[PAIRS] filtered rows (Double Up queue): {len(df_pairs)}")
 
     if df_pairs.empty:
-        print("[ERROR] Üres df_pairs – valami nem oké a filterrel vagy a file-lal.")
+        print("[ERROR] Empty df_pairs – something is not right.")
         return
 
     # marginals
@@ -337,19 +337,19 @@ def main():
     df_syn.sort_values("synergy_score", ascending=False).to_csv(os.path.join(OUT_DIR, "pair_synergies_all.csv"), index=False, encoding="utf-8-sig")
     df_rank.sort_values("synergy_score", ascending=False).to_csv(os.path.join(OUT_DIR, "pair_synergies_ranked_min_games.csv"), index=False, encoding="utf-8-sig")
 
-    print(f"[SAVE] CSV-k mentve ide: {OUT_DIR}")
+    print(f"[SAVE] CSVs saved to: {OUT_DIR}")
 
     # ábrák
-    plot_top_bar(df_rank, "synergy_score", f"TOP párok synergy_score (min {MIN_GAMES} game)", os.path.join(OUT_DIR, "top_synergy_score.png"))
-    plot_top_bar(df_rank, "eb_points", f"TOP párok EB-shrinkelt teljesítmény (min {MIN_GAMES} game)", os.path.join(OUT_DIR, "top_eb_points.png"))
-    plot_top_bar(df_rank, "top2", f"TOP párok Top2 arány (min {MIN_GAMES} game)", os.path.join(OUT_DIR, "top_top2_rate.png"))
-    plot_top_bar(df_rank, "lift_top2", f"TOP párok Lift Top2 (min {MIN_GAMES} game)", os.path.join(OUT_DIR, "top_lift_top2.png"))
-    plot_top_bar(df_rank, "lift_top1", f"TOP párok Lift Top1 (min {MIN_GAMES} game)", os.path.join(OUT_DIR, "top_lift_top1.png"))
+    plot_top_bar(df_rank, "synergy_score", f"TOP pairs synergy_score (min {MIN_GAMES} game)", os.path.join(OUT_DIR, "top_synergy_score.png"))
+    plot_top_bar(df_rank, "eb_points", f"TOP pairs EB-shrunken performance (min {MIN_GAMES} game)", os.path.join(OUT_DIR, "top_eb_points.png"))
+    plot_top_bar(df_rank, "top2", f"TOP pairs Top2 ratio (min {MIN_GAMES} game)", os.path.join(OUT_DIR, "top_top2_rate.png"))
+    plot_top_bar(df_rank, "lift_top2", f"TOP pairs Lift Top2 (min {MIN_GAMES} game)", os.path.join(OUT_DIR, "top_lift_top2.png"))
+    plot_top_bar(df_rank, "lift_top1", f"TOP pairs Lift Top1 (min {MIN_GAMES} game)", os.path.join(OUT_DIR, "top_lift_top1.png"))
 
     plot_scatter_count_vs_perf(df_syn, os.path.join(OUT_DIR, "scatter_games_vs_eb_points.png"))
     plot_heatmap_top_builds(df_pairs, os.path.join(OUT_DIR, "heatmap_top_builds.png"))
 
-    print("[DONE] Kész! Nézd meg az output/synergy mappát.")
+    print("[DONE] Ready! Look at the output/synergy folder.")
 
 
 if __name__ == "__main__":
